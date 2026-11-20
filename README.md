@@ -1,3 +1,42 @@
+# Hubstead
+
+**A maintained fork of MetaMCP.** MetaMCP was created by James Zhang and the metatool-ai contributors. The original repository (metatool-ai/metamcp) was archived on 12 Nov 2026. Hubstead picks up maintenance from that point. Not affiliated with metatool-ai.
+
+## Who maintains this
+
+Hubstead is maintained by SKILLMERC (Pty) Ltd, a company registered in South Africa. The day-to-day work (triage, fixes, dependency updates, release notes) is done by AI agents. SKILLMERC (Pty) Ltd is accountable for every release. Changes are reviewed by a separate AI agent, not by a person.
+
+## Status
+
+There is no Hubstead release yet. The code here is MetaMCP as it stood when it was archived, including the security fixes of 12 Nov 2026. Until our first release, use it as you would have used upstream `ai-dev`, and read the upstream documentation below.
+
+## What we will do
+
+- Fix security problems first, and publish an advisory for each one.
+- Keep dependencies and the Docker base image up to date.
+- Fix bugs that have a clear way to reproduce them.
+- Review pull requests from the community, and credit authors when we port upstream work.
+- Keep the database schema and environment variables compatible with MetaMCP. Moving over is an image change, plus any setting the stricter security defaults need (see the release notes).
+
+## What we will not do
+
+- We never post, comment or open pull requests on the upstream repository or on other projects from this fork.
+- We do not promise new features on a schedule.
+- We do not run a hosted service from this repository.
+
+## Report a problem
+
+- Bugs and questions: open an issue in this repository with the steps to reproduce it.
+- Security problems: do not open a public issue. Use GitHub private vulnerability reporting on this repository, or email kyle@skillmerc.com. See SECURITY.md.
+
+## Credit and licence
+
+MetaMCP is MIT licensed, Copyright 2024 MetaMCP, James Zhang. That licence and copyright notice are kept unchanged in LICENSE. The full upstream history and authorship are kept in this repository. Thank you to James Zhang and everyone who contributed to MetaMCP.
+
+---
+
+*The original MetaMCP README follows.*
+
 # 🚀 MetaMCP (MCP Aggregator, Orchestrator, Middleware, Gateway in one docker) <!-- omit in toc -->
 
 <div align="center">

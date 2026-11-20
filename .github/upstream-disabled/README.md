@@ -1,0 +1,3 @@
+# Upstream workflows, disabled
+
+`docker-publish.yml` is the upstream MetaMCP workflow that built and pushed images to ghcr.io/metatool-ai. It is kept here for reference and does not run. Hubstead's CI is in `.github/workflows/ci.yml` and does not push images. A publish workflow will be added with the first release, after review.
