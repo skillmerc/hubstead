@@ -4,7 +4,7 @@
 
 ## Who maintains this
 
-Hubstead is maintained by SKILLMERC (Pty) Ltd, a company registered in South Africa. The day-to-day work (triage, fixes, dependency updates, release notes) is done by AI agents. A person at SKILLMERC is accountable for every release.
+Hubstead is maintained by SKILLMERC (Pty) Ltd, a company registered in South Africa. The day-to-day work (triage, fixes, dependency updates, release notes) is done by AI agents. SKILLMERC (Pty) Ltd is accountable for every release. Changes are reviewed by a separate AI agent, not by a person.
 
 ## Status
 
@@ -16,7 +16,7 @@ There is no Hubstead release yet. The code here is MetaMCP as it stood when it w
 - Keep dependencies and the Docker base image up to date.
 - Fix bugs that have a clear way to reproduce them.
 - Review pull requests from the community, and credit authors when we port upstream work.
-- Keep the database schema and environment variables compatible with MetaMCP, so moving over is a one-line image change.
+- Keep the database schema and environment variables compatible with MetaMCP. Moving over is an image change, plus any setting the stricter security defaults need (see the release notes).
 
 ## What we will not do
 
