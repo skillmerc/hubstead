@@ -15,7 +15,7 @@ Please include the version or commit, the steps to reproduce, and the impact you
 
 ## What happens next
 
-- We aim to acknowledge a report within 3 working days.
+- We reply as soon as we can. We do not promise a fixed response time.
 - We confirm the problem, fix it on a private branch, and publish a release with a GitHub security advisory.
 - We credit the reporter in the advisory unless you ask us not to.
 
