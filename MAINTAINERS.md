@@ -10,7 +10,7 @@ Hubstead is a maintained fork of MetaMCP. It is maintained by SKILLMERC (Pty) Lt
 ## How the work is done
 
 - AI agents triage issues, write fixes, update dependencies and draft release notes.
-- Every change goes through a review step before it is merged, and a person at SKILLMERC is accountable for every release.
+- Every change is reviewed by a separate AI agent before it is merged. SKILLMERC (Pty) Ltd is accountable for every release.
 - Commits made by our agents are authored as "SKILLMERC <kyle@skillmerc.com>". Release notes say which changes came from our agents and which were ported from community work, with credit to the original authors.
 
 ## Original authors
