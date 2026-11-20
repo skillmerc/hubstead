@@ -112,8 +112,8 @@ Columns: number, title, author, opened, comments, reactions.
 
 Order: security first (a gateway holds keys and starts processes), then the release users asked for, then bugs that leak resources or block whole groups of clients, then smaller bugs. Reactions are low across the board (most items have 0 or 1), so impact and clarity of the repro decide the order, not votes.
 
-1. **#387** Broken access control in frontend tRPC API: apiKeys.create trusts client user_id (impersonation), tools.getByMcpServerUuid missing authz, logs.get/clear global cross-user store. Security: tRPC access control (API key impersonation, missing authz, cross-user logs). Check first whether ec54ade (12 Nov) closed each route; add a test per route.
-2. **#375** Endpoint owners can enumerate MCP servers and reset error state across all tenants via admin routes that fail to scope queries to their namespace.. Security: cross-tenant admin routes. Same check against ec54ade and ee78722 (adminProcedure).
+1. **#387** Broken access control in frontend tRPC API: apiKeys.create trusts client user_id (impersonation), tools.getByMcpServerUuid missing authz, logs.get/clear global cross-user store. Security: tRPC access control (API key impersonation, missing authz, cross-user logs). Commit ec54ade (12 Nov) lists fixes for these exact routes (public API keys no longer impersonate, audit logs scoped, log clearing admin-only). Confirm each route with a test and close.
+2. **#375** Endpoint owners can enumerate MCP servers and reset error state across all tenants via admin routes that fail to scope queries to their namespace.. Security: cross-tenant admin routes. ec54ade says /metamcp/:endpoint/admin/* now requires an authenticated endpoint and is scoped to its namespace. Confirm with a test and close.
 3. **#364** Server lookup by name is not user-scoped in three middleware paths; the namespace tool gate allows on an unresolved server. Security: server lookup by name not user-scoped in middleware; namespace tool gate allows on unresolved server.
 4. **#388** Inactive namespace tools remain callable through override aliases. Security: inactive namespace tools still callable through override aliases.
 5. **#386** Enable PVR (Private Vulnerability Reports) for better security. Security process: six issues (#386, #379, #376, #372, #370, #369) ask for a private reporting channel. Our SECURITY.md and GitHub private vulnerability reporting answer all six.
@@ -123,7 +123,7 @@ Order: security first (a gateway holds keys and starts processes), then the rele
 9. **#324** Backend tool-refresh creates a new "background idle session" every cycle, never cleaned up - unbounded session/resource growth on Streamable HTTP backends. Bug: tool refresh leaks a new idle session every cycle (unbounded growth); clear repro in the issue.
 10. **#294** Stale upstream session IDs after idle expiry - and per-namespace cache multiplies it. Bug: stale upstream session IDs after idle expiry, multiplied by the per-namespace cache.
 11. **#272** STDIO servers spawned once per namespace, causing excessive memory usage. Bug: STDIO servers spawned once per namespace, high memory use.
-12. **#265** OAuth DCR endpoint returns localhost URLs behind reverse proxy (TLS termination). Bug: OAuth DCR returns localhost URLs behind a reverse proxy (also #263). Closed PR #317 by @oliverhees has a fix to port with credit.
+12. **#265** OAuth DCR endpoint returns localhost URLs behind reverse proxy (TLS termination). Bug: OAuth DCR returns localhost URLs behind a reverse proxy (also #263). Upstream commit a2e31d8 (12 Nov) says it ported #317 by @oliverhees (getBaseUrl() in DCR). Confirm on a proxy setup and close.
 13. **#277** /.well-known/oauth-authorization-server served unconditionally, breaks MCP clients using RFC 9728 discovery. Bug: /.well-known/oauth-authorization-server served unconditionally breaks RFC 9728 discovery clients.
 14. **#331** StreamableHTTPServerTransport never sets enableJsonResponse - every /mcp response is SSE-framed, and non-SSE Accept headers get a 406. Bug: enableJsonResponse never set, so every /mcp response is SSE and non-SSE clients get 406.
 15. **#365** Proxy fills optional tool parameters with empty defaults, breaking downstream servers with strict validation. Bug: optional tool parameters filled with empty defaults break strict servers (inspector variant #333).
@@ -141,7 +141,6 @@ These were closed upstream without being merged. If we port one, the commit keep
 
 | PR | Title | Author | Opened | Why |
 |---|---|---|---|---|
-| #317 | fix(oauth): use getBaseUrl() in DCR so endpoints respect APP_URL behind a proxy | @oliverhees | 2026-06-23 | OAuth DCR uses getBaseUrl() so endpoints respect APP_URL behind a proxy. Fixes #263 and #265. |
 | #336 | fix: reap stdio worker descendants | @ekinnee | 2026-07-27 | Reap STDIO worker descendants. Fits #272 and the process-leak reports. |
 | #319 | fix: handle downstream session pool exhaustion | @ZeroPointSix | 2026-06-24 | Handle downstream session pool exhaustion. Fits #294 and #324. |
 | #389 | fix(mcp): partition oversized tool lists and preserve metadata | @DYung26 | 2026-11-11 | Partition oversized tool lists and keep metadata. Relates to the 64-character and list-size discussions (#249). |
@@ -151,7 +150,7 @@ These were closed upstream without being merged. If we port one, the commit keep
 | #355 | fix: consolidated perf-live + adversarial audit fixes (Dockerfile build crash, leaks, DB tools path) | @terafin | 2026-08-25 | Large: consolidated fixes for the Dockerfile build, leaks and DB tools path. Review piece by piece. |
 | #368 | Create SECURITY.md for security policy | @Gfiberboy2026 | 2026-09-18 | SECURITY.md proposal. We wrote our own; credit the idea. |
 
-Already in the history (merged upstream as commits after the PR was closed), so nothing to port: #383 and #384 by @TheViniAlmeida (0bdd75f, 0dbf342), #280 and #302 by @loris-av (69e4b4f, 2c696db), #335 by @tossp (superseded by 91a04a9).
+Already in the history (merged upstream as commits after the PR was closed), so nothing to port: #383 and #384 by @TheViniAlmeida (0bdd75f, 0dbf342), #280 and #302 by @loris-av (69e4b4f, 2c696db), #335 by @tossp (superseded by 91a04a9), #317 by @oliverhees (ported in a2e31d8).
 
 ## All closed, unmerged pull requests since 21 Nov 2025
 
