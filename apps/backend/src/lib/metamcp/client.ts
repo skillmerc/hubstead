@@ -14,6 +14,7 @@ import { isUpstreamUnauthorizedError } from "../oauth-upstream/token-exchange";
 import { ProcessManagedStdioTransport } from "../stdio-transport/process-managed-transport";
 import { metamcpLogStore } from "./log-store";
 import { serverErrorTracker } from "./server-error-tracker";
+import { stderrLogLevel } from "./stderr-level";
 import { resolveEnvVariables } from "./utils";
 
 const sleep = (time: number) =>
@@ -65,11 +66,8 @@ export const createMetaMcpClient = (
       const stderrStream = (transport as ProcessManagedStdioTransport).stderr;
 
       stderrStream?.on("data", (chunk: Buffer) => {
-        metamcpLogStore.addLog(
-          serverParams.name,
-          "error",
-          chunk.toString().trim(),
-        );
+        const text = chunk.toString().trim();
+        metamcpLogStore.addLog(serverParams.name, stderrLogLevel(text), text);
       });
 
       stderrStream?.on("error", (error: Error) => {
