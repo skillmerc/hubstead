@@ -1,26 +1,28 @@
-import { eq } from "drizzle-orm";
-
-import { db } from "@/db";
-import { mcpServersTable } from "@/db/schema";
-
 import { parseToolName } from "../tool-name-parser";
+import { findNamespaceServerByPrefix } from "./namespace-server-lookup";
 
-export async function resolveToolIdentity(toolName: string): Promise<{
+export interface ToolIdentity {
   mcpServerUuid?: string;
   mcpServerName?: string;
-}> {
+}
+
+/**
+ * Resolve the MCP server behind a tool name for audit rows. The lookup is
+ * scoped to the namespace, since server names are only unique per user
+ * (upstream issue #364). Without a namespace no server uuid is recorded.
+ */
+export async function resolveToolIdentity(
+  toolName: string,
+  namespaceUuid?: string,
+): Promise<ToolIdentity> {
   const parsed = parseToolName(toolName);
   if (!parsed) {
     return {};
   }
 
-  const [server] = await db
-    .select({
-      uuid: mcpServersTable.uuid,
-      name: mcpServersTable.name,
-    })
-    .from(mcpServersTable)
-    .where(eq(mcpServersTable.name, parsed.serverName));
+  const server = namespaceUuid
+    ? await findNamespaceServerByPrefix(namespaceUuid, parsed.serverName)
+    : null;
 
   return {
     mcpServerUuid: server?.uuid,

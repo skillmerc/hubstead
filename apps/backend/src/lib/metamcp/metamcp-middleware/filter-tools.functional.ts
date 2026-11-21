@@ -4,16 +4,14 @@ import { and, eq } from "drizzle-orm";
 import logger from "@/utils/logger";
 
 import { db } from "../../../db/index";
-import {
-  mcpServersTable,
-  namespaceToolMappingsTable,
-  toolsTable,
-} from "../../../db/schema";
+import { namespaceToolMappingsTable, toolsTable } from "../../../db/schema";
 import { parseToolName } from "../tool-name-parser";
 import {
   CallToolMiddleware,
   ListToolsMiddleware,
 } from "./functional-middleware";
+import { findNamespaceServerByPrefix } from "./namespace-server-lookup";
+import { mapOverrideNameToOriginal } from "./tool-overrides.functional";
 
 /**
  * Configuration for the filter middleware
@@ -139,27 +137,24 @@ async function getToolStatus(
       `Error fetching tool status for ${toolName} in namespace ${namespaceUuid}:`,
       error,
     );
-    return null;
+    // Rethrow: "could not check" must not read as "no mapping" (allowed).
+    throw error;
   }
 }
 
 // parseToolName is now imported from shared utility
 
 /**
- * Get server UUID by name
+ * Get the UUID of the namespace server behind a tool-name prefix. Scoped to
+ * the namespace, since server names are only unique per user (upstream issue
+ * #364). Throws on database errors.
  */
-async function getServerUuidByName(serverName: string): Promise<string | null> {
-  try {
-    const [server] = await db
-      .select({ uuid: mcpServersTable.uuid })
-      .from(mcpServersTable)
-      .where(eq(mcpServersTable.name, serverName));
-
-    return server?.uuid || null;
-  } catch (error) {
-    logger.error(`Error fetching server UUID for ${serverName}:`, error);
-    return null;
-  }
+async function getServerUuidByName(
+  namespaceUuid: string,
+  serverName: string,
+): Promise<string | null> {
+  const server = await findNamespaceServerByPrefix(namespaceUuid, serverName);
+  return server?.uuid ?? null;
 }
 
 /**
@@ -186,7 +181,10 @@ async function filterActiveTools(
           return;
         }
 
-        const serverUuid = await getServerUuidByName(parsed.serverName);
+        const serverUuid = await getServerUuidByName(
+          namespaceUuid,
+          parsed.serverName,
+        );
         if (!serverUuid) {
           // If server not found, include the tool (fallback behavior)
           activeTools.push(tool);
@@ -254,8 +252,11 @@ async function isToolAllowed(
       `Error checking if tool ${toolName} is allowed in namespace ${namespaceUuid}:`,
       error,
     );
-    // On error, allow the tool (fail-safe behavior)
-    return { allowed: true };
+    // Fail closed: a check that could not run does not allow the tool.
+    return {
+      allowed: false,
+      reason: "Tool status could not be checked",
+    };
   }
 }
 
@@ -305,37 +306,60 @@ export function createFilterCallToolMiddleware(
 
   return (handler) => {
     return async (request, context) => {
-      // Extract tool name and server info from the request
       const toolName = request.params.name;
 
-      // We need to get serverUuid somehow - this would need to be passed through context
-      // For now, let's extract it from the tool name format
-      const parsed = parseToolName(toolName);
-      if (parsed) {
-        const serverUuid = await getServerUuidByName(parsed.serverName);
-        if (serverUuid) {
-          const { allowed, reason } = await isToolAllowed(
-            toolName,
-            context.namespaceUuid,
-            serverUuid,
-            useCache,
-          );
+      // Check the tool the call will really run: an override alias is mapped
+      // back to its original name first (upstream issue #388).
+      const canonicalName = await mapOverrideNameToOriginal(
+        toolName,
+        context.namespaceUuid,
+        useCache,
+      );
 
-          if (!allowed) {
-            // Return error response instead of calling the handler
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: customErrorMessage(
-                    toolName,
-                    reason || "Unknown reason",
-                  ),
-                },
-              ],
-              isError: true,
+      const parsed = parseToolName(canonicalName);
+      if (parsed) {
+        let decision: { allowed: boolean; reason?: string };
+        try {
+          const serverUuid = await getServerUuidByName(
+            context.namespaceUuid,
+            parsed.serverName,
+          );
+          if (serverUuid) {
+            decision = await isToolAllowed(
+              canonicalName,
+              context.namespaceUuid,
+              serverUuid,
+              useCache,
+            );
+          } else {
+            // Fail closed: the server is not part of this namespace.
+            decision = {
+              allowed: false,
+              reason: "The tool's server is not part of this namespace",
             };
           }
+        } catch (error) {
+          logger.error(`Error checking tool ${toolName}:`, error);
+          decision = {
+            allowed: false,
+            reason: "Tool status could not be checked",
+          };
+        }
+
+        if (!decision.allowed) {
+          // Return error response instead of calling the handler
+          return {
+            content: [
+              {
+                type: "text",
+                text: customErrorMessage(
+                  toolName,
+                  decision.reason || "Unknown reason",
+                ),
+              },
+            ],
+            isError: true,
+          };
         }
       }
 
