@@ -8,7 +8,14 @@ Hubstead is maintained by SKILLMERC (Pty) Ltd, a company registered in South Afr
 
 ## Status
 
-There is no Hubstead release yet. The code here is MetaMCP as it stood when it was archived, including the security fixes of 12 Nov 2026. Until our first release, use it as you would have used upstream `ai-dev`, and read the upstream documentation below.
+Our first release is v2.6.0. It is MetaMCP as it stood when it was archived, including the security fixes of 3 Nov and 12 Nov 2026, plus our maintenance setup. See the release notes.
+
+There is no Hubstead Docker image yet. The upstream instructions below and docker-compose.yml still use `ghcr.io/metatool-ai/metamcp:latest`. Upstream last built that image for v2.4.22 in December 2025, before those fixes. To run Hubstead, build it from source:
+
+1. `git clone --branch v2.6.0 https://github.com/skillmerc/hubstead.git`, then `cd hubstead`.
+2. `cp example.env .env`, then set `BETTER_AUTH_SECRET` in `.env` to a new value from `openssl rand -hex 32`. Hubstead refuses to start in production with the example value.
+3. In docker-compose.yml, replace the two lines `image: ghcr.io/metatool-ai/metamcp:latest` and `pull_policy: always` with `build: .`.
+4. Run `docker compose up -d --build`.
 
 ## What we will do
 
