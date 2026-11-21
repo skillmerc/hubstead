@@ -66,12 +66,14 @@ RUN set -eu; \
 FROM base AS runner
 WORKDIR /app
 
-# OCI image labels
-LABEL org.opencontainers.image.source="https://github.com/metatool-ai/metamcp"
-LABEL org.opencontainers.image.description="MetaMCP - aggregates MCP servers into a unified MetaMCP"
+# OCI image labels. io.modelcontextprotocol.server.name lets the official
+# MCP Registry check that this image belongs to io.github.skillmerc/hubstead.
+LABEL org.opencontainers.image.source="https://github.com/skillmerc/hubstead"
+LABEL org.opencontainers.image.description="Hubstead, a maintained fork of MetaMCP: one MCP endpoint for many MCP servers. Needs Postgres."
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.title="MetaMCP"
-LABEL org.opencontainers.image.vendor="metatool-ai"
+LABEL org.opencontainers.image.title="Hubstead"
+LABEL org.opencontainers.image.vendor="SKILLMERC (Pty) Ltd"
+LABEL io.modelcontextprotocol.server.name="io.github.skillmerc/hubstead"
 
 # Install curl for health checks
 RUN apt-get update && apt-get install -y curl postgresql-client && apt-get clean && rm -rf /var/lib/apt/lists/*
