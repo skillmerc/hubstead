@@ -26,7 +26,7 @@ Please include the version or commit, the steps to reproduce, and the impact you
 | Latest Hubstead release | Yes |
 | Upstream MetaMCP releases (v2.4.22 and earlier) | No. Please move to the latest Hubstead release. |
 
-Fixes land on the default branch first and ship in the next Hubstead release. There is no Hubstead Docker image yet; build from source (see README.md).
+Fixes land on the default branch first and ship in the next Hubstead release. Hubstead Docker images start at v2.6.1 (`ghcr.io/skillmerc/hubstead`); README.md has the steps, and how to build from source.
 
 ## Reports about upstream MetaMCP
 

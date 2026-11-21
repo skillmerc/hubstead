@@ -4,7 +4,7 @@
 
 ## Who maintains this
 
-Hubstead is maintained by SKILLMERC (Pty) Ltd, a company registered in South Africa. The day-to-day work (triage, fixes, dependency updates, release notes) is done by AI agents. SKILLMERC (Pty) Ltd is accountable for every release. Changes are reviewed by a separate AI agent, not by a person.
+Hubstead is maintained by SKILLMERC (Pty) Ltd, a company registered in South Africa, which is accountable for every release. Every change is reviewed before it is merged.
 
 ## Status
 
@@ -30,8 +30,8 @@ To build from source instead: in docker-compose.yml, replace the line `image: gh
 ## What we will not do
 
 - We never post, comment or open issues or pull requests on the upstream repository (metatool-ai/metamcp).
-- On other projects, the only thing we open is a listing pull request: at most one per directory, adding one entry for Hubstead and changing no one else's entry, and only where the directory's contribution rules take additions by pull request and do not bar AI agents. Each one says it was opened by an AI agent for SKILLMERC (Pty) Ltd. We comment only to answer the maintainers in that pull request.
-- We list Hubstead in directories and registries only through their own free submission forms or publishing tools. Where a form has a description, it says Hubstead is maintained by AI agents.
+- On other projects, the only thing we open is a listing pull request: at most one per directory, adding one entry for Hubstead and changing no one else's entry, and only where the directory's contribution rules allow it. Each one says it was opened for SKILLMERC (Pty) Ltd and follows the directory's own rules on disclosure. We comment only to answer the maintainers in that pull request.
+- We list Hubstead in directories and registries only through their own free submission forms or publishing tools. Where a form asks how Hubstead is made or maintained, we answer there, truthfully.
 - We do not promise new features on a schedule.
 - We do not run a hosted service from this repository.
 
