@@ -8,7 +8,7 @@ Hubstead is maintained by SKILLMERC (Pty) Ltd, a company registered in South Afr
 
 ## Status
 
-Our first release is v2.6.0. It is MetaMCP as it stood when it was archived, including the security fixes of 3 Nov and 12 Nov 2026, plus our maintenance setup. See the release notes.
+Our first release is v2.6.0. It is MetaMCP as it stood when it was archived, including the security fixes of 3 Nov and 12 Nov 2026, plus two access-control fixes of our own (upstream issues 364 and 388) and our maintenance setup. See the release notes.
 
 There is no Hubstead Docker image yet. The upstream instructions below and docker-compose.yml still use `ghcr.io/metatool-ai/metamcp:latest`. Upstream last built that image for v2.4.22 in December 2025, before those fixes. To run Hubstead, build it from source:
 
@@ -19,7 +19,7 @@ There is no Hubstead Docker image yet. The upstream instructions below and docke
 
 ## What we will do
 
-- Fix security problems first, and publish an advisory for each one.
+- Fix security problems first. A problem reported to us privately gets a GitHub security advisory when the fix is released.
 - Keep dependencies and the Docker base image up to date.
 - Fix bugs that have a clear way to reproduce them.
 - Review pull requests from the community, and credit authors when we port upstream work.
