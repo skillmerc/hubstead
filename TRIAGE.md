@@ -25,6 +25,7 @@ Columns: number, title, author, opened, comments, reactions.
 | #291 | Security scan results for metamcp - MCPSafe AIVSS 52/100 (Grade C) | @mcpsafe-gh | 2026-05-12 | 0 | 0 |
 
 Status at v2.6.0: #364 and #388 are fixed in Hubstead v2.6.0 (PR #2). #387 and #375 are confirmed fixed upstream in commit ec54ade, with tests added here in PR #2.
+Status at v2.6.1: #321 and #378 are fixed in Hubstead v2.6.1 (PR #8).
 
 ## Bugs with a clear repro (or a clear description) (21)
 
@@ -119,7 +120,7 @@ Order: security first (a gateway holds keys and starts processes), then the rele
 3. **#364** Server lookup by name is not user-scoped in three middleware paths; the namespace tool gate allows on an unresolved server. Security: server lookup by name not user-scoped in middleware; namespace tool gate allows on unresolved server. Fixed in Hubstead v2.6.0 (PR #2). Done.
 4. **#388** Inactive namespace tools remain callable through override aliases. Security: inactive namespace tools still callable through override aliases. Fixed in Hubstead v2.6.0 (PR #2). Done.
 5. **#386** Enable PVR (Private Vulnerability Reports) for better security. Security process: six issues (#386, #379, #376, #372, #370, #369) ask for a private reporting channel. Our SECURITY.md and GitHub private vulnerability reporting answer all six.
-6. **#378** Docker image: update Node for CVE-2026-111497 (24.22.1). Dependency: Node in the Docker image needs the CVE update; pin the base image.
+6. **#378** Docker image: update Node for CVE-2026-111497 (24.22.1). Dependency: Node in the Docker image needs the CVE update; pin the base image. Fixed in Hubstead v2.6.1 (PR #8). Done.
 7. **#338** Please cut a release: the OAuth `refresh_token` grant (f446ce3) has been on main, unreleased, since March. Release: users ask for a release with the OAuth refresh_token grant (f446ce3, March 2026). Our first release ships it.
 8. **#241** MCP proxy requests hang indefinitely when connecting via stdio transport. Bug: proxy requests hang forever over STDIO.
 9. **#324** Backend tool-refresh creates a new "background idle session" every cycle, never cleaned up - unbounded session/resource growth on Streamable HTTP backends. Bug: tool refresh leaks a new idle session every cycle (unbounded growth); clear repro in the issue.
@@ -132,7 +133,7 @@ Order: security first (a gateway holds keys and starts processes), then the rele
 16. **#264** STDIO servers stuck in ERROR state after restart - error_status persisted in DB. Bug: STDIO servers stuck in ERROR after restart. Check whether 225f552 (self-heal on reconnect) already fixes it.
 17. **#330** Cannot add MetaMCP endpoint in Google Antigravity, throws failed to connect (session ID: ): session not found. Bug: Google Antigravity cannot connect, session not found.
 18. **#236** OIDC/Google SSO Login Fails with PROVIDER_NOT_FOUND Error. Bug: OIDC/Google SSO fails with PROVIDER_NOT_FOUND. Check against 7718bbc (better-auth 1.7).
-19. **#321** Stdio MCP server stderr is always logged as `error`, contrary to MCP spec (stderr carries all log levels). Bug: STDIO server stderr always logged as error, against the MCP spec. Small fix.
+19. **#321** Stdio MCP server stderr is always logged as `error`, contrary to MCP spec (stderr carries all log levels). Bug: STDIO server stderr always logged as error, against the MCP spec. Small fix. Fixed in Hubstead v2.6.1 (PR #8). Done.
 20. **#244** [BUG] Session Cleanup Setting Save. Bug: session cleanup setting does not save.
 
 Likely already fixed after v2.4.22, to confirm and close on our side: #334 (loopback redirect URIs, commit 91a04a9), #340 (namespace export, commit 7c22565), #224 (README middleware note, docs only).
