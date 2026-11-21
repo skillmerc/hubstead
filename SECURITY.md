@@ -24,9 +24,9 @@ Please include the version or commit, the steps to reproduce, and the impact you
 | Version | Supported |
 |---|---|
 | Latest Hubstead release | Yes |
-| Upstream MetaMCP releases (v2.4.22 and earlier) | No. Please move to the latest Hubstead release once one exists. |
+| Upstream MetaMCP releases (v2.4.22 and earlier) | No. Please move to the latest Hubstead release. |
 
-There is no Hubstead release yet. Until there is, fixes land on the default branch.
+Fixes land on the default branch first and ship in the next Hubstead release. There is no Hubstead Docker image yet; build from source (see README.md).
 
 ## Reports about upstream MetaMCP
 
