@@ -52,3 +52,21 @@ jobs:
           tags: hubstead:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  audit:
+    name: Dependency audit (pnpm audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Full report of production dependencies, for the log and the next
+      # dependency update. This step never fails the job.
+      - name: Audit report (production dependencies)
+        run: pnpm audit --prod || true
+      # Fails the job on any critical advisory in production dependencies.
+      - name: Fail on critical advisories
+        run: pnpm audit --prod --audit-level critical
