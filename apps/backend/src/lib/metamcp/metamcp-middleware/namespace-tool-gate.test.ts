@@ -20,6 +20,9 @@ const fake = vi.hoisted(() => {
     namespace_tool_mappings: [],
     tools: [],
   };
+  // Number of upcoming queries on namespace_tool_mappings that fail, to
+  // simulate a transient database error.
+  const faults = { toolMappingQueries: 0 };
 
   function table(name: string, cols: string[]) {
     const t: Record<string, unknown> = { __table: name };
@@ -55,8 +58,16 @@ const fake = vi.hoisted(() => {
   const db = {
     select(fields: Record<string, any>) {
       let rows: Row[] = [];
+      let failThisQuery = false;
       const query: any = {
         from(t: any) {
+          if (
+            t.__table === "namespace_tool_mappings" &&
+            faults.toolMappingQueries > 0
+          ) {
+            faults.toolMappingQueries -= 1;
+            failThisQuery = true;
+          }
           rows = data[t.__table].map((r) => prefixed(t.__table, r));
           return query;
         },
@@ -72,6 +83,11 @@ const fake = vi.hoisted(() => {
           return query;
         },
         where(cond: any) {
+          if (failThisQuery) {
+            const failed: any = Promise.reject(new Error("db unavailable"));
+            failed.limit = () => failed;
+            return failed;
+          }
           const hits = rows.filter((r) => matches(cond, r));
           const result = hits.map((r) => pick(fields, r));
           const promise: any = Promise.resolve(result);
@@ -103,7 +119,7 @@ const fake = vi.hoisted(() => {
     toolsTable: table("tools", ["uuid", "name", "mcp_server_uuid"]),
   };
 
-  return { data, db, schema };
+  return { data, db, faults, schema };
 });
 
 vi.mock("drizzle-orm", () => ({
@@ -216,6 +232,7 @@ async function callTool(chain: (...args: any[]) => any, name: string) {
 
 beforeEach(() => {
   for (const rows of Object.values(fake.data)) rows.length = 0;
+  fake.faults.toolMappingQueries = 0;
 });
 
 describe("issue #364: server lookup scoped to the namespace", () => {
@@ -300,5 +317,41 @@ describe("issue #388: INACTIVE tool called through its override alias", () => {
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler.mock.calls[0][0].params.name).toBe("notesvc__add_note");
+  });
+});
+
+describe("override lookup error: the call gate fails closed", () => {
+  it("denies an alias call when the gate's override lookup errors and the next lookup works", async () => {
+    seedNotes();
+    // Only the gate's first query fails; the overrides middleware's lookup a
+    // moment later succeeds and would map the alias to the INACTIVE tool.
+    fake.faults.toolMappingQueries = 1;
+    const handler = okHandler();
+
+    const result = await callTool(pipeline(handler), "notesvc__cleanup");
+
+    expect(handler).not.toHaveBeenCalled();
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain("could not be checked");
+  });
+
+  it("denies an active tool too while the lookup errors", async () => {
+    seedNotes();
+    fake.faults.toolMappingQueries = 1;
+    const handler = okHandler();
+
+    const result = await callTool(pipeline(handler), "notesvc__add_note");
+
+    expect(handler).not.toHaveBeenCalled();
+    expect(result.isError).toBe(true);
+  });
+
+  it("still runs an active tool by its alias once the database answers", async () => {
+    seedNotes();
+    const handler = okHandler();
+
+    await callTool(pipeline(handler), "notesvc__jot");
+
+    expect(handler).toHaveBeenCalledTimes(1);
   });
 });

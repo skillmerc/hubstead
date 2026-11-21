@@ -309,41 +309,57 @@ export function createFilterCallToolMiddleware(
       const toolName = request.params.name;
 
       // Check the tool the call will really run: an override alias is mapped
-      // back to its original name first (upstream issue #388).
-      const canonicalName = await mapOverrideNameToOriginal(
-        toolName,
-        context.namespaceUuid,
-        useCache,
-      );
+      // back to its original name first (upstream issue #388). If that lookup
+      // fails, the gate cannot know which tool will run, so it fails closed.
+      let canonicalName = toolName;
+      let mappingFailed = false;
+      try {
+        canonicalName = await mapOverrideNameToOriginal(
+          toolName,
+          context.namespaceUuid,
+          useCache,
+          true,
+        );
+      } catch (error) {
+        logger.error(`Error resolving override name for ${toolName}:`, error);
+        mappingFailed = true;
+      }
 
       const parsed = parseToolName(canonicalName);
       if (parsed) {
         let decision: { allowed: boolean; reason?: string };
-        try {
-          const serverUuid = await getServerUuidByName(
-            context.namespaceUuid,
-            parsed.serverName,
-          );
-          if (serverUuid) {
-            decision = await isToolAllowed(
-              canonicalName,
-              context.namespaceUuid,
-              serverUuid,
-              useCache,
-            );
-          } else {
-            // Fail closed: the server is not part of this namespace.
-            decision = {
-              allowed: false,
-              reason: "The tool's server is not part of this namespace",
-            };
-          }
-        } catch (error) {
-          logger.error(`Error checking tool ${toolName}:`, error);
+        if (mappingFailed) {
           decision = {
             allowed: false,
             reason: "Tool status could not be checked",
           };
+        } else {
+          try {
+            const serverUuid = await getServerUuidByName(
+              context.namespaceUuid,
+              parsed.serverName,
+            );
+            if (serverUuid) {
+              decision = await isToolAllowed(
+                canonicalName,
+                context.namespaceUuid,
+                serverUuid,
+                useCache,
+              );
+            } else {
+              // Fail closed: the server is not part of this namespace.
+              decision = {
+                allowed: false,
+                reason: "The tool's server is not part of this namespace",
+              };
+            }
+          } catch (error) {
+            logger.error(`Error checking tool ${toolName}:`, error);
+            decision = {
+              allowed: false,
+              reason: "Tool status could not be checked",
+            };
+          }
         }
 
         if (!decision.allowed) {
