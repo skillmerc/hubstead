@@ -24,6 +24,8 @@ Columns: number, title, author, opened, comments, reactions.
 | #369 | No Security.Md ? | @priyankn | 2026-09-22 | 0 | 0 |
 | #291 | Security scan results for metamcp - MCPSafe AIVSS 52/100 (Grade C) | @mcpsafe-gh | 2026-05-12 | 0 | 0 |
 
+Status at v2.6.0: #364 and #388 are fixed in Hubstead v2.6.0 (PR #2). #387 and #375 are confirmed fixed upstream in commit ec54ade, with tests added here in PR #2.
+
 ## Bugs with a clear repro (or a clear description) (21)
 
 | # | Title | Author | Opened | Comments | Reactions |
@@ -112,10 +114,10 @@ Columns: number, title, author, opened, comments, reactions.
 
 Order: security first (a gateway holds keys and starts processes), then the release users asked for, then bugs that leak resources or block whole groups of clients, then smaller bugs. Reactions are low across the board (most items have 0 or 1), so impact and clarity of the repro decide the order, not votes.
 
-1. **#387** Broken access control in frontend tRPC API: apiKeys.create trusts client user_id (impersonation), tools.getByMcpServerUuid missing authz, logs.get/clear global cross-user store. Security: tRPC access control (API key impersonation, missing authz, cross-user logs). Commit ec54ade (12 Nov) lists fixes for these exact routes (public API keys no longer impersonate, audit logs scoped, log clearing admin-only). Confirm each route with a test and close.
-2. **#375** Endpoint owners can enumerate MCP servers and reset error state across all tenants via admin routes that fail to scope queries to their namespace.. Security: cross-tenant admin routes. ec54ade says /metamcp/:endpoint/admin/* now requires an authenticated endpoint and is scoped to its namespace. Confirm with a test and close.
-3. **#364** Server lookup by name is not user-scoped in three middleware paths; the namespace tool gate allows on an unresolved server. Security: server lookup by name not user-scoped in middleware; namespace tool gate allows on unresolved server.
-4. **#388** Inactive namespace tools remain callable through override aliases. Security: inactive namespace tools still callable through override aliases.
+1. **#387** Broken access control in frontend tRPC API: apiKeys.create trusts client user_id (impersonation), tools.getByMcpServerUuid missing authz, logs.get/clear global cross-user store. Security: tRPC access control (API key impersonation, missing authz, cross-user logs). Commit ec54ade (12 Nov) lists fixes for these exact routes (public API keys no longer impersonate, audit logs scoped, log clearing admin-only). Confirmed fixed upstream in ec54ade, with tests added in PR #2 (v2.6.0). Done.
+2. **#375** Endpoint owners can enumerate MCP servers and reset error state across all tenants via admin routes that fail to scope queries to their namespace.. Security: cross-tenant admin routes. ec54ade says /metamcp/:endpoint/admin/* now requires an authenticated endpoint and is scoped to its namespace. Confirmed fixed upstream in ec54ade, with tests added in PR #2 (v2.6.0). Done.
+3. **#364** Server lookup by name is not user-scoped in three middleware paths; the namespace tool gate allows on an unresolved server. Security: server lookup by name not user-scoped in middleware; namespace tool gate allows on unresolved server. Fixed in Hubstead v2.6.0 (PR #2). Done.
+4. **#388** Inactive namespace tools remain callable through override aliases. Security: inactive namespace tools still callable through override aliases. Fixed in Hubstead v2.6.0 (PR #2). Done.
 5. **#386** Enable PVR (Private Vulnerability Reports) for better security. Security process: six issues (#386, #379, #376, #372, #370, #369) ask for a private reporting channel. Our SECURITY.md and GitHub private vulnerability reporting answer all six.
 6. **#378** Docker image: update Node for CVE-2026-111497 (24.22.1). Dependency: Node in the Docker image needs the CVE update; pin the base image.
 7. **#338** Please cut a release: the OAuth `refresh_token` grant (f446ce3) has been on main, unreleased, since March. Release: users ask for a release with the OAuth refresh_token grant (f446ce3, March 2026). Our first release ships it.
