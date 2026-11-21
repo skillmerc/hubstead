@@ -10,12 +10,14 @@ Hubstead is maintained by SKILLMERC (Pty) Ltd, a company registered in South Afr
 
 Our first release is v2.6.0. It is MetaMCP as it stood when it was archived, including the security fixes of 3 Nov and 12 Nov 2026, plus two access-control fixes of our own (upstream issues 364 and 388) and our maintenance setup. See the release notes.
 
-There is no Hubstead Docker image yet. The upstream instructions below and docker-compose.yml still use `ghcr.io/metatool-ai/metamcp:latest`. Upstream last built that image for v2.4.22 in December 2025, before those fixes. To run Hubstead, build it from source:
+The Hubstead Docker image exists only from v2.6.1: `ghcr.io/skillmerc/hubstead:2.6.1` (linux/amd64). There is no Hubstead image for v2.6.0. Hubstead needs Postgres; docker-compose.yml starts one next to it. The upstream instructions further down still name metatool-ai/metamcp; use these steps instead:
 
-1. `git clone --branch v2.6.0 https://github.com/skillmerc/hubstead.git`, then `cd hubstead`.
+1. `git clone --branch v2.6.1 https://github.com/skillmerc/hubstead.git`, then `cd hubstead`.
 2. `cp example.env .env`, then set `BETTER_AUTH_SECRET` in `.env` to a new value from `openssl rand -hex 32`. Hubstead refuses to start in production with the example value.
-3. In docker-compose.yml, replace the two lines `image: ghcr.io/metatool-ai/metamcp:latest` and `pull_policy: always` with `build: .`.
-4. Run `docker compose up -d --build`.
+3. If more than one person signs in, set `METAMCP_ADMIN_EMAILS` in `.env` to your administrators' emails, separated by commas. When it is unset, every signed-in user is an administrator. Register those addresses before sign-up is open (example.env says why).
+4. Run `docker compose up -d`. This pulls `ghcr.io/skillmerc/hubstead:2.6.1` and starts Postgres.
+
+To build from source instead: in docker-compose.yml, replace the line `image: ghcr.io/skillmerc/hubstead:2.6.1` with `build: .`, then run `docker compose up -d --build`.
 
 ## What we will do
 
