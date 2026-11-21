@@ -14,6 +14,7 @@ import {
   CallToolMiddleware,
   ListToolsMiddleware,
 } from "./functional-middleware";
+import { findNamespaceServerByPrefix } from "./namespace-server-lookup";
 
 /**
  * Configuration for the tool overrides middleware
@@ -190,11 +191,8 @@ async function getToolOverrides(
   }
 
   try {
-    // Get server UUID by name
-    const [server] = await db
-      .select({ uuid: mcpServersTable.uuid })
-      .from(mcpServersTable)
-      .where(eq(mcpServersTable.name, serverName));
+    // Get the server UUID by name, scoped to this namespace (issue #364)
+    const server = await findNamespaceServerByPrefix(namespaceUuid, serverName);
 
     if (!server) {
       return null;
