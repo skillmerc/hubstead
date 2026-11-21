@@ -1,8 +1,9 @@
 services:
   app:
     container_name: metamcp
-    image: ghcr.io/metatool-ai/metamcp:latest
-    pull_policy: always
+    # Hubstead image, published from v2.6.1. To build from source instead,
+    # replace the image line below with: build: .
+    image: ghcr.io/skillmerc/hubstead:2.6.1
     env_file:
       - .env
     ports:

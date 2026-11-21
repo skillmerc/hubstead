@@ -1,12 +1,17 @@
-# Use the official uv image as base
-FROM ghcr.io/astral-sh/uv:debian AS base
+# Use the official uv image as base, pinned by digest so a rebuild of the
+# same tag uses the same base. To update: read the new digest of
+# ghcr.io/astral-sh/uv:debian and change it here in a reviewed commit.
+FROM ghcr.io/astral-sh/uv:debian@sha256:75a98164449b633920e26368bbe3217ce546f2d87d8df1eed3a718934e6e1689 AS base
 
-# Install Node.js and pnpm directly
+# Install Node.js 22 (the version CI tests on) and pnpm directly. Node 20 is
+# end of life and does not get the CVE-2026-111497 fix (upstream issue #378);
+# the build fails if the installed Node 22 is older than 22.23.4.
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
+    && node -e "const [a,b,c]=process.versions.node.split('.').map(Number); if (a!==22 || b<23 || (b===23 && c<4)) { console.error('Node '+process.versions.node+' is not 22.23.4 or later'); process.exit(1); }" \
     && npm install -g pnpm@10.12.0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -61,12 +66,14 @@ RUN set -eu; \
 FROM base AS runner
 WORKDIR /app
 
-# OCI image labels
-LABEL org.opencontainers.image.source="https://github.com/metatool-ai/metamcp"
-LABEL org.opencontainers.image.description="MetaMCP - aggregates MCP servers into a unified MetaMCP"
+# OCI image labels. io.modelcontextprotocol.server.name lets the official
+# MCP Registry check that this image belongs to io.github.skillmerc/hubstead.
+LABEL org.opencontainers.image.source="https://github.com/skillmerc/hubstead"
+LABEL org.opencontainers.image.description="Hubstead, a maintained fork of MetaMCP: one MCP endpoint for many MCP servers. Needs Postgres."
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.title="MetaMCP"
-LABEL org.opencontainers.image.vendor="metatool-ai"
+LABEL org.opencontainers.image.title="Hubstead"
+LABEL org.opencontainers.image.vendor="SKILLMERC (Pty) Ltd"
+LABEL io.modelcontextprotocol.server.name="io.github.skillmerc/hubstead"
 
 # Install curl for health checks
 RUN apt-get update && apt-get install -y curl postgresql-client && apt-get clean && rm -rf /var/lib/apt/lists/*

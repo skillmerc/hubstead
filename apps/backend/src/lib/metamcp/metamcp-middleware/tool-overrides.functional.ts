@@ -362,12 +362,17 @@ async function applyToolOverrides(
 }
 
 /**
- * Map override name back to original name for tool calls
+ * Map override name back to original name for tool calls.
+ *
+ * By default a database error is logged and the name is returned unchanged.
+ * With `throwOnError` the error is thrown instead, so a caller that makes an
+ * access decision (the namespace call gate) can fail closed.
  */
 export async function mapOverrideNameToOriginal(
   toolName: string,
   namespaceUuid: string,
   useCache: boolean = true,
+  throwOnError: boolean = false,
 ): Promise<string> {
   // Parse the tool name to extract server and tool parts
   const parsed = parseToolName(toolName);
@@ -430,6 +435,9 @@ export async function mapOverrideNameToOriginal(
       `Error mapping override name ${toolName} to original in namespace ${namespaceUuid}:`,
       error,
     );
+    if (throwOnError) {
+      throw error;
+    }
   }
 
   // If no mapping found, return the original name
