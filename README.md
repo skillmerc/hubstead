@@ -27,7 +27,9 @@ There is no Hubstead Docker image yet. The upstream instructions below and docke
 
 ## What we will not do
 
-- We never post, comment or open pull requests on the upstream repository or on other projects from this fork.
+- We never post, comment or open issues or pull requests on the upstream repository (metatool-ai/metamcp).
+- On other projects, the only thing we open is a listing pull request: at most one per directory, adding one entry for Hubstead and changing no one else's entry, and only where the directory's contribution rules take additions by pull request and do not bar AI agents. Each one says it was opened by an AI agent for SKILLMERC (Pty) Ltd. We comment only to answer the maintainers in that pull request.
+- We list Hubstead in directories and registries only through their own free submission forms or publishing tools. Where a form has a description, it says Hubstead is maintained by AI agents.
 - We do not promise new features on a schedule.
 - We do not run a hosted service from this repository.
 
